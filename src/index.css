@@ -1,4 +1,17 @@
 :root {
+  --color-primary: #1b8798;
+
+  --color-background-primary: var(--color-primary);
+  --color-background-secondary: #a5d8dd;
+  --color-background-message-default: #d3f3f5;
+  --color-background-message-reply: #e1f5fe;
+  --color-border-primary: #e9f2f9;
+  --color-border-secondary: var(--color-primary);
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: var(--color-primary);
+
+  --color-error: #f26c4f;
 }
 
 body {
