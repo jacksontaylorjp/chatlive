@@ -1,7 +1,8 @@
-import { Button, Flex, Grid, Input, message, Typography } from "antd";
+import { Button, Flex, Grid, Input, Typography } from "antd";
 import { useState } from "react";
 import { SendOutlined } from "@ant-design/icons";
 import type { ChatMessage } from "../interfaces";
+import Content from "./Content";
 
 const Chat = () => {
     const [text, setText] = useState<string>("");
@@ -57,7 +58,20 @@ const Chat = () => {
 
                 }}
                 vertical
+                gap={16}
             >
+                <Flex
+                    style={{
+                        flex: 1,
+                        overflowY: "auto",
+                        border: "1px solid var(--color-border-primary)",
+                        borderRadius: 6,
+                        padding: 12,
+                    }}
+                    className="chat-scroll"
+                >
+                    <Content />
+                </Flex>
                 <Flex
                     gap={8}
                 >

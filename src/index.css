@@ -22,3 +22,8 @@ body {
 .custom-input:hover {
   border-color: var(--color-border-secondary)
 }
+
+.chat-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) var(--color-background-secondary);
+}
