@@ -1,8 +1,13 @@
 import { Button, Flex, Typography } from "antd";
 import { GoogleOutlined, LogoutOutlined } from "@ant-design/icons";
+import { useAuth } from "../hooks/useAuth";
+import { AuthService } from "../services/AuthService";
 
 const Header = () => {
-    const user = {}
+    const { user } = useAuth();
+    const authService = new AuthService();
+    console.log("user",user);
+
     return (
         <Flex
             align="center"
@@ -26,12 +31,17 @@ const Header = () => {
                 style={{
                     color: "var(--color-text-primary)"
                 }}
-                icon={!user ?
+                icon={user ?
                     <LogoutOutlined /> :
                     <GoogleOutlined />
                 }
+                onClick={
+                    user ?
+                        authService.logout :
+                        authService.login
+                }
             >
-                {!user ? "Sair" : "Entrar com Google"}
+                {user ? "Sair" : "Entrar com Google"}
             </Button>
         </Flex>
     );

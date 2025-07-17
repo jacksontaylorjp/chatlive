@@ -3,29 +3,27 @@ import { useState } from "react";
 import { SendOutlined } from "@ant-design/icons";
 import type { ChatMessage } from "../interfaces";
 import Content from "./Content";
+import { useAuth } from "../hooks/useAuth";
+import { sendMessage } from "../services/ChatService";
+import { serverTimestamp } from "firebase/database";
 
 const Chat = () => {
     const [text, setText] = useState<string>("");
-    const user = {
-        uid: "123",
-        displayName: "joão",
-        photoURL: "https://avatars.githubusercontent.com/u/42698510?v=4"
-    }
+    const { user } = useAuth();
     const { useBreakpoint } = Grid;
     const screens = useBreakpoint();
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!text.trim) return;
         if (!user) return;
         const message: Omit<ChatMessage, 'id'> = {
             text,
             userId: user.uid,
-            userName: user.displayName,
-            userPhoto: user.photoURL,
-            //colocar horario do server
-            timestamp: new Date()
+            userName: user.displayName?.split(" ")[0] ?? "",
+            userPhoto: user.photoURL ?? "",
+            timestamp: serverTimestamp()
         }
+        await sendMessage(message)
         setText("");
-        console.log(message)
     }
     return (
         <Flex
