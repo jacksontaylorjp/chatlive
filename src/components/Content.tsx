@@ -1,51 +1,32 @@
 import { Avatar, Dropdown, Flex, List, Space, Typography } from "antd";
-import { Ellipsis, MessageCircleReply, MessageCircleX } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { Ellipsis } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import ReplyModal from "./ReplyModal";
 import DeleteModal from "./DeleteModal";
+import { useAuth } from "../hooks/useAuth";
+import { deleteMessage, onMessageUpdate } from "../services/ChatService";
+import type { ChatMessage } from "../interfaces";
+import { formtTimesTemp } from "../utils/formatTimesTamp";
 
 const Content = () => {
-    const user = {
-        uid: '01'
-    }
-    const messages = [
-        {
-            id: '01',
-            text: 'Olá',
-            userId: '01',
-            userName: 'Jackson',
-            userPhoto: 'https://avatars.githubusercontent.com/u/42698510?v=4',
-            timestamp: new Date(),
-        },
-        {
-            id: '02',
-            text: 'Oi',
-            userId: '02',
-            userName: 'James',
-            userPhoto: 'https://avatars.githubusercontent.com/u/42698510?v=4',
-            timestamp: new Date(),
-            replyTo: {
-                id: '01',
-                text: 'Olá',
-                userId: '01',
-                userName: 'Jackson',
-                userPhoto: 'https://avatars.githubusercontent.com/u/42698510?v=4',
-                timestamp: new Date(),
-            }
-        },
-        {
-            id: '03',
-            text: 'Oi 2',
-            userId: '01',
-            userName: 'Jackson',
-            userPhoto: 'https://avatars.githubusercontent.com/u/42698510?v=4',
-            timestamp: new Date(),
-        }
-    ]
+    const { user } = useAuth();
+    const [messages, setmessages] = useState<ChatMessage[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleDelete = () => {
-        console.log("deletado");
+    const handleDelete = async (id: string) => {
+        await deleteMessage(id);
     }
+
+    useEffect(() => {
+        setLoading(true);
+        const unsubscribe = onMessageUpdate(
+            (mgs) => {
+                setmessages(mgs);
+                setLoading(false);
+            }
+        );
+        return () => unsubscribe();
+    }, [])
 
     const endRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
@@ -55,23 +36,24 @@ const Content = () => {
         <List
             dataSource={messages}
             split={false}
+            loading={loading}
             style={{
                 width: "100%"
             }}
             renderItem={(msg) => {
                 const menuItems = [];
-                if (msg.userId !== user.uid) {
+                if (msg.userId !== user?.uid) {
                     menuItems.push({
                         key: 'reply',
                         label:
-                            <ReplyModal />
+                            <ReplyModal msg={msg} />
                     })
                 }
-                if (msg.userId === user.uid) {
+                if (msg.userId === user?.uid) {
                     menuItems.push({
                         key: "delete",
                         label:
-                            <DeleteModal onConfirm={handleDelete} message={"messagem"}/>
+                            <DeleteModal onConfirm={() => handleDelete(msg.id)} message={"messagem"} />
                     })
                 }
                 return (
@@ -108,7 +90,7 @@ const Content = () => {
 
                             <Space
                                 direction="vertical"
-                                align={msg.userId === user.uid ? "end" : "start"}
+                                align={msg.userId === user?.uid ? "end" : "start"}
                                 style={{
                                     backgroundColor: "var(--color-background-message-default)",
                                     padding: "12px 12px",
@@ -156,7 +138,7 @@ const Content = () => {
                                                         color: "var(--color-text-secondary)"
                                                     }}
                                                 >
-                                                    {msg.replyTo.userName} · {Date(msg.replyTo.timestamp)}
+                                                    {msg.replyTo.userName} · {formtTimesTemp(msg.replyTo.timestamp)}
                                                 </Typography.Text>
                                             </Flex>
                                         </Flex>
@@ -175,7 +157,7 @@ const Content = () => {
                                             color: "var(--color-text-secondary)"
                                         }}
                                     >
-                                        {msg.userName} · {Date(msg.timestamp)}
+                                        {msg.userName} · {formtTimesTemp(msg.timestamp)}
                                     </Typography.Text>
                                 </Space>
                             </Space>

@@ -2,16 +2,18 @@ import { Button, Flex, Input, Modal, Typography } from "antd";
 import { MessageCircleReply } from "lucide-react";
 import { useState } from "react";
 import type { ChatMessage } from "../interfaces";
+import { replyMessage } from "../services/ChatService";
+import { useAuth } from "../hooks/useAuth";
+import { serverTimestamp } from "firebase/database";
 
-const ReplyModal = () => {
+interface ReplyModalProps {
+    msg: ChatMessage;
+}
+
+const ReplyModal = ({ msg }: ReplyModalProps) => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [reply, setReply] = useState<string>("");
-
-    const user = {
-        userId: '01',
-        userName: "jackson",
-        userPhoto: "",
-    }
+    const { user } = useAuth();
 
     const showModal = () => {
         setIsModalOpen(true);
@@ -21,16 +23,16 @@ const ReplyModal = () => {
         setIsModalOpen(false);
     }
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!user) return;
         const messageReply: Omit<ChatMessage, 'id'> = {
             text: reply,
-            userId: user.userId,
-            userName: user.userName,
-            userPhoto: user.userPhoto,
-            timestamp: new Date()
+            userId: user.uid,
+            userName: user.displayName?.split(" ")[0] ?? "",
+            userPhoto: user.photoURL ?? "",
+            timestamp: serverTimestamp()
         }
-        console.log(messageReply);
+        await replyMessage(messageReply, msg)
         setReply("");
         setIsModalOpen(false);
 
