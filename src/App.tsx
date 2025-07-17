@@ -1,9 +1,12 @@
+import { AuthProvider } from "./contexts/AuthContext"
 import Home from "./pages/Home"
 
 function App() {
 
   return (
-    <Home />
+    <AuthProvider>
+      <Home />
+    </AuthProvider>
   )
 }
 
